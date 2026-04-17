@@ -57,7 +57,7 @@ Preview:
 ```bash
 curl -X POST http://localhost:8080/api/v1/imports/files/preview \
   -H "Content-Type: multipart/form-data" \
-  -F "file=@sample-data/drivers-sample.csv"
+  -F "file="
 ```
 
 Import:
@@ -65,29 +65,5 @@ Import:
 ```bash
 curl -X POST http://localhost:8080/api/drivers/import \
   -H "Content-Type: multipart/form-data" \
-  -F "file=@sample-data/drivers-sample.csv"
-```
-
-## Response shape
-
-Preview response:
-
-```text
-fileName
-delimiter
-summary
-columns[position, originalName, normalizedKey]
-rows[rowNumber, values]
-```
-
-Import response:
-
-```text
-importJobId
-totalRows
-successRows
-failedRows
-errors[rowNumber, message]
-message
-durationMs
+  -F "file="
 ```

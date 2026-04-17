@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: tool-insert
+
+  datasource:
+    url: jdbc:oracle:thin:@//localhost:1521/XEPDB1
+    username: dbtest
+    password: hoangquan0811
+    driver-class-name: oracle.jdbc.OracleDriver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+logging:
+  level:
+    root: INFO
+    com.example.toolinsert: INFO
+server:
+  port: 8082
+app:
+  import:
+    skip-blank-rows: true
+    preview-rows: 5
+    max-rows: 10000
+    batch-size: 200

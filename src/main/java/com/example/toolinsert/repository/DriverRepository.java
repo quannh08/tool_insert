@@ -1,13 +1,13 @@
 package com.example.toolinsert.repository;
 
-import com.example.toolinsert.entity.DriverEntity;
-import java.time.LocalDate;
+import com.example.toolinsert.entity.DDriverEntity;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface DriverRepository extends JpaRepository<DriverEntity, Long> {
+public interface DriverRepository extends JpaRepository<DDriverEntity, Long> {
 
-    Optional<DriverEntity> findByIdentityNumber(String identityNumber);
+    Optional<DDriverEntity> findByIdentityNumber(String identityNumber);
 
-    Optional<DriverEntity> findByFullNameAndDob(String fullName, LocalDate dob);
+    Optional<DDriverEntity> findByFullNameAndDob(String fullName, LocalDateTime dob);
 }

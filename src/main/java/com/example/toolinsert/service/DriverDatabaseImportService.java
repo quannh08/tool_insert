@@ -1,28 +1,20 @@
 package com.example.toolinsert.service;
 
-import com.example.toolinsert.entity.BankAccountEntity;
-import com.example.toolinsert.entity.CriteriaEntity;
-import com.example.toolinsert.entity.DriverBankAccountEntity;
-import com.example.toolinsert.entity.DriverClassAssignmentEntity;
-import com.example.toolinsert.entity.DriverClassEntity;
-import com.example.toolinsert.entity.DriverDocumentApprovalEntity;
-import com.example.toolinsert.entity.DriverEntity;
-import com.example.toolinsert.entity.DriverMetricEntity;
-import com.example.toolinsert.entity.DriverPartyEntity;
-import com.example.toolinsert.entity.DriverPropertyEntity;
-import com.example.toolinsert.entity.DriverServiceEntity;
-import com.example.toolinsert.entity.PartyEntity;
-import com.example.toolinsert.entity.PropertyEntity;
-import com.example.toolinsert.entity.RegionEntity;
-import com.example.toolinsert.entity.ServiceEntity;
-import com.example.toolinsert.entity.StagingDriverImportEntity;
-import com.example.toolinsert.entity.id.DriverBankAccountId;
-import com.example.toolinsert.entity.id.DriverClassAssignmentId;
-import com.example.toolinsert.entity.id.DriverDocumentApprovalId;
-import com.example.toolinsert.entity.id.DriverMetricId;
-import com.example.toolinsert.entity.id.DriverPartyId;
-import com.example.toolinsert.entity.id.DriverPropertyId;
-import com.example.toolinsert.entity.id.DriverServiceId;
+import com.example.toolinsert.entity.DBankAccEntity;
+import com.example.toolinsert.entity.DClassEntity;
+import com.example.toolinsert.entity.DCriteriaEntity;
+import com.example.toolinsert.entity.DDriverBankAccEntity;
+import com.example.toolinsert.entity.DDriverClassEntity;
+import com.example.toolinsert.entity.DDriverDocumentApprovalEntity;
+import com.example.toolinsert.entity.DDriverEntity;
+import com.example.toolinsert.entity.DDriverMetricEntity;
+import com.example.toolinsert.entity.DDriverPartyEntity;
+import com.example.toolinsert.entity.DDriverPropertyEntity;
+import com.example.toolinsert.entity.DDriverServiceEntity;
+import com.example.toolinsert.entity.DPartyEntity;
+import com.example.toolinsert.entity.DPropertyEntity;
+import com.example.toolinsert.entity.DRegionEntity;
+import com.example.toolinsert.entity.DServiceEntity;
 import com.example.toolinsert.model.DriverImportError;
 import com.example.toolinsert.model.NormalizedDriverImportRow;
 import com.example.toolinsert.repository.BankAccountRepository;
@@ -54,21 +46,17 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.zip.CRC32;
+import org.cmsdriversservice.entity.id.DDriverBankAccId;
+import org.cmsdriversservice.entity.id.DDriverClassId;
+import org.cmsdriversservice.entity.id.DDriverPartyId;
+import org.cmsdriversservice.entity.id.DDriverPropertyId;
+import org.cmsdriversservice.entity.id.DDriverServiceId;
 import org.springframework.stereotype.Service;
 
 @Service
 public class DriverDatabaseImportService {
 
     private static final String METRIC_DRIVING_EXPERIENCE = "kinh_nghiem_lai_xe";
-    private static final Map<String, String> DOCUMENT_TO_PROPERTY = Map.of(
-            "cccd_mat_truoc", "cccd_mat_truoc",
-            "cccd_mat_sau", "cccd_mat_sau",
-            "gplx_mat_truoc", "gplx_mat_truoc",
-            "gplx_mat_sau", "gplx_mat_sau",
-            "giay_xet_nghiem_ma_tuy", "giay_xet_nghiem_ma_tuy",
-            "ly_lich_tu_phap", "ly_lich_tu_phap",
-            "giay_xet_nghiem_hiv", "giay_xet_nghiem_hiv"
-    );
 
     private final DriverRepository driverRepository;
     private final PartyRepository partyRepository;
@@ -123,39 +111,31 @@ public class DriverDatabaseImportService {
         this.driverBatchInsertService = driverBatchInsertService;
     }
 
-    public List<DriverImportError> importValidatedRows(
-            List<NormalizedDriverImportRow> normalizedRows,
-            List<StagingDriverImportEntity> stagingRows
-    ) {
+    public List<DriverImportError> importValidatedRows(List<NormalizedDriverImportRow> normalizedRows) {
         List<DriverImportError> errors = new ArrayList<>();
-        Map<String, RegionEntity> regions = indexRegions(regionRepository.findAll());
-        Map<String, ServiceEntity> services = indexServices(serviceRepository.findAll());
-        Map<String, DriverClassEntity> classes = indexDriverClasses(driverClassRepository.findAll());
-        Map<String, PropertyEntity> properties = indexProperties(propertyRepository.findAll());
-        Map<String, CriteriaEntity> criteria = indexCriteria(criteriaRepository.findAll());
-        Map<String, PartyEntity> partyCache = new LinkedHashMap<>();
-        Map<String, BankAccountEntity> bankAccountCache = new LinkedHashMap<>();
-        Map<String, DriverEntity> importedDriversBySourceId = new LinkedHashMap<>();
-        Map<DriverPartyId, DriverPartyEntity> driverPartyLinks = new LinkedHashMap<>();
-        Map<DriverBankAccountId, DriverBankAccountEntity> driverBankAccountLinks = new LinkedHashMap<>();
-        Map<DriverServiceId, DriverServiceEntity> driverServiceLinks = new LinkedHashMap<>();
-        Map<DriverClassAssignmentId, DriverClassAssignmentEntity> driverClassLinks = new LinkedHashMap<>();
-        Map<DriverPropertyId, DriverPropertyEntity> driverProperties = new LinkedHashMap<>();
-        Map<DriverDocumentApprovalId, DriverDocumentApprovalEntity> documentApprovals = new LinkedHashMap<>();
-        Map<DriverMetricId, DriverMetricEntity> driverMetrics = new LinkedHashMap<>();
+
+        // Load master data once so every row can resolve foreign keys in memory before linking child tables.
+        Map<String, DRegionEntity> regions = indexRegions(regionRepository.findAll());
+        Map<String, DServiceEntity> services = indexServices(serviceRepository.findAll());
+        Map<String, DClassEntity> classes = indexDriverClasses(driverClassRepository.findAll());
+        Map<String, DPropertyEntity> properties = indexProperties(propertyRepository.findAll());
+        Map<String, DCriteriaEntity> criteria = indexCriteria(criteriaRepository.findAll());
+        Map<String, DPartyEntity> partyCache = new LinkedHashMap<>();
+        Map<String, DBankAccEntity> bankAccountCache = new LinkedHashMap<>();
+        Map<String, DDriverEntity> importedDriversBySourceId = new LinkedHashMap<>();
+        Map<DDriverPartyId, DDriverPartyEntity> driverPartyLinks = new LinkedHashMap<>();
+        Map<DDriverBankAccId, DDriverBankAccEntity> driverBankAccountLinks = new LinkedHashMap<>();
+        Map<DDriverServiceId, DDriverServiceEntity> driverServiceLinks = new LinkedHashMap<>();
+        Map<DDriverClassId, DDriverClassEntity> driverClassLinks = new LinkedHashMap<>();
+        Map<DDriverPropertyId, DDriverPropertyEntity> driverProperties = new LinkedHashMap<>();
+        Map<String, DDriverDocumentApprovalEntity> documentApprovals = new LinkedHashMap<>();
+        Map<String, DDriverMetricEntity> driverMetrics = new LinkedHashMap<>();
         List<RowContext> contexts = new ArrayList<>();
 
-        for (int index = 0; index < normalizedRows.size(); index++) {
-            NormalizedDriverImportRow row = normalizedRows.get(index);
-            StagingDriverImportEntity stagingRow = stagingRows.get(index);
-            if (!row.errors().isEmpty()) {
-                continue;
-            }
-
+        for (NormalizedDriverImportRow row : normalizedRows) {
             try {
                 RowContext context = importRow(
                         row,
-                        stagingRow,
                         regions,
                         services,
                         classes,
@@ -175,103 +155,111 @@ public class DriverDatabaseImportService {
                 if (row.sourceId() != null && !row.sourceId().isBlank()) {
                     importedDriversBySourceId.put(row.sourceId().trim(), context.driver());
                 }
-                stagingRow.setImportStatus("IMPORTED");
-                stagingRow.setErrorMessage(null);
             } catch (Exception exception) {
-                String message = rootCauseMessage(exception);
-                stagingRow.setImportStatus("FAILED");
-                stagingRow.setErrorMessage(message);
-                errors.add(new DriverImportError(row.rowNumber(), message));
+                errors.add(new DriverImportError(row.rowNumber(), rootCauseMessage(exception)));
             }
         }
 
+        // Referrers depend on imported drivers being known first, so update them after driver creation.
         updateReferrers(contexts, importedDriversBySourceId);
-        saveLinkTables(driverPartyLinks, driverBankAccountLinks, driverServiceLinks, driverClassLinks, driverProperties, documentApprovals, driverMetrics);
+        saveLinkTables(
+                driverPartyLinks,
+                driverBankAccountLinks,
+                driverServiceLinks,
+                driverClassLinks,
+                driverProperties,
+                documentApprovals,
+                driverMetrics
+        );
         return errors;
     }
 
     private RowContext importRow(
             NormalizedDriverImportRow row,
-            StagingDriverImportEntity stagingRow,
-            Map<String, RegionEntity> regions,
-            Map<String, ServiceEntity> services,
-            Map<String, DriverClassEntity> classes,
-            Map<String, PropertyEntity> properties,
-            Map<String, CriteriaEntity> criteria,
-            Map<String, PartyEntity> partyCache,
-            Map<String, BankAccountEntity> bankAccountCache,
-            Map<DriverPartyId, DriverPartyEntity> driverPartyLinks,
-            Map<DriverBankAccountId, DriverBankAccountEntity> driverBankAccountLinks,
-            Map<DriverServiceId, DriverServiceEntity> driverServiceLinks,
-            Map<DriverClassAssignmentId, DriverClassAssignmentEntity> driverClassLinks,
-            Map<DriverPropertyId, DriverPropertyEntity> driverProperties,
-            Map<DriverDocumentApprovalId, DriverDocumentApprovalEntity> documentApprovals,
-            Map<DriverMetricId, DriverMetricEntity> driverMetrics
+            Map<String, DRegionEntity> regions,
+            Map<String, DServiceEntity> services,
+            Map<String, DClassEntity> classes,
+            Map<String, DPropertyEntity> properties,
+            Map<String, DCriteriaEntity> criteria,
+            Map<String, DPartyEntity> partyCache,
+            Map<String, DBankAccEntity> bankAccountCache,
+            Map<DDriverPartyId, DDriverPartyEntity> driverPartyLinks,
+            Map<DDriverBankAccId, DDriverBankAccEntity> driverBankAccountLinks,
+            Map<DDriverServiceId, DDriverServiceEntity> driverServiceLinks,
+            Map<DDriverClassId, DDriverClassEntity> driverClassLinks,
+            Map<DDriverPropertyId, DDriverPropertyEntity> driverProperties,
+            Map<String, DDriverDocumentApprovalEntity> documentApprovals,
+            Map<String, DDriverMetricEntity> driverMetrics
     ) {
         Map<String, Object> values = row.normalizedValues();
-        String phone = stringValue(values.get("phone"));
-        PartyEntity party = resolveParty(phone, partyCache);
-        RegionEntity region = resolveRegion(stringValue(values.get("region_name")), regions);
-        DriverEntity driver = resolveDriver(values, party, region);
-        List<ServiceEntity> resolvedServices = resolveServices(values.get("service_codes"), services);
-        DriverClassEntity driverClass = resolveDriverClass(stringValue(values.get("driver_class")), classes);
-        BankAccountEntity bankAccount = resolveBankAccount(values, bankAccountCache);
+        DPartyEntity party = resolveParty(stringValue(values.get("phone")), partyCache);
+        DRegionEntity region = resolveRegion(stringValue(values.get("region_name")), regions);
+        DDriverEntity driver = resolveDriver(values, region);
+        List<DServiceEntity> resolvedServices = resolveServices(values.get("service_codes"), services);
+        DClassEntity driverClass = resolveDriverClass(
+                stringValue(values.get("driver_class")),
+                bigDecimalValue(values.get("bonus_rate")),
+                classes
+        );
+        DBankAccEntity bankAccount = resolveBankAccount(values, bankAccountCache);
 
         if (party != null) {
-            DriverPartyEntity link = new DriverPartyEntity();
-            link.setId(new DriverPartyId(driver.getId(), party.getId()));
-            link.setDriver(driver);
-            link.setParty(party);
-            driverPartyLinks.put(link.getId(), link);
+            DDriverPartyEntity link = new DDriverPartyEntity();
+            link.setDriverId(driver.getDriverId());
+            link.setPartyId(party.getPartyId());
+            link.setStatus(1);
+            driverPartyLinks.put(new DDriverPartyId(driver.getDriverId(), party.getPartyId()), link);
         }
 
         if (bankAccount != null) {
-            DriverBankAccountEntity link = new DriverBankAccountEntity();
-            link.setId(new DriverBankAccountId(driver.getId(), bankAccount.getId()));
-            link.setDriver(driver);
-            link.setBankAccount(bankAccount);
-            driverBankAccountLinks.put(link.getId(), link);
+            DDriverBankAccEntity link = new DDriverBankAccEntity();
+            link.setDriverId(driver.getDriverId());
+            link.setBankAccId(bankAccount.getBankAccId());
+            link.setStatus(0);
+            driverBankAccountLinks.put(new DDriverBankAccId(driver.getDriverId(), bankAccount.getBankAccId()), link);
         }
 
-        for (ServiceEntity service : resolvedServices) {
-            DriverServiceEntity driverService = new DriverServiceEntity();
-            driverService.setId(new DriverServiceId(driver.getId(), service.getId()));
-            driverService.setDriver(driver);
-            driverService.setService(service);
-            driverServiceLinks.put(driverService.getId(), driverService);
+        for (DServiceEntity service : resolvedServices) {
+            DDriverServiceEntity driverService = new DDriverServiceEntity();
+            driverService.setDriverId(driver.getDriverId());
+            driverService.setServiceId(service.getServiceId());
+            driverService.setStatus(1);
+            driverServiceLinks.put(new DDriverServiceId(driver.getDriverId(), service.getServiceId()), driverService);
 
             if (driverClass != null) {
-                DriverClassAssignmentEntity assignment = new DriverClassAssignmentEntity();
-                assignment.setId(new DriverClassAssignmentId(driver.getId(), driverClass.getId(), service.getId()));
-                assignment.setDriver(driver);
-                assignment.setDriverClass(driverClass);
-                assignment.setService(service);
+                DDriverClassEntity assignment = new DDriverClassEntity();
+                assignment.setDriverId(driver.getDriverId());
+                assignment.setClassId(driverClass.getClassId());
+                assignment.setServiceId(service.getServiceId());
                 assignment.setBonusRate(bigDecimalValue(values.get("bonus_rate")));
-                driverClassLinks.put(assignment.getId(), assignment);
+                assignment.setStatus(1);
+                driverClassLinks.put(
+                        new DDriverClassId(driver.getDriverId(), driverClass.getClassId(), service.getServiceId()),
+                        assignment
+                );
             }
         }
 
         addPropertyRows(driver, values, properties, driverProperties);
-        addDocumentApprovalRows(driver, row.sourceId(), values, documentApprovals);
+        addDocumentApprovalRows(driver, values, documentApprovals);
         addMetricRows(driver, values, criteria, driverMetrics);
-
-        return new RowContext(row, stagingRow, driver, values);
+        return new RowContext(row, driver, values);
     }
 
-    private void updateReferrers(List<RowContext> contexts, Map<String, DriverEntity> importedDriversBySourceId) {
-        List<DriverEntity> driversToUpdate = new ArrayList<>();
+    private void updateReferrers(List<RowContext> contexts, Map<String, DDriverEntity> importedDriversBySourceId) {
+        List<DDriverEntity> driversToUpdate = new ArrayList<>();
         for (RowContext context : contexts) {
             String referrerSourceId = stringValue(context.values().get("referrer_source_id"));
             if (referrerSourceId == null) {
                 continue;
             }
 
-            DriverEntity referrer = importedDriversBySourceId.get(referrerSourceId);
-            if (referrer == null || Objects.equals(referrer.getId(), context.driver().getId())) {
+            DDriverEntity referrer = importedDriversBySourceId.get(referrerSourceId);
+            if (referrer == null || Objects.equals(referrer.getDriverId(), context.driver().getDriverId())) {
                 continue;
             }
 
-            context.driver().setReferrer(referrer);
+            context.driver().setReferrerId(referrer.getDriverId());
             driversToUpdate.add(context.driver());
         }
 
@@ -279,13 +267,13 @@ public class DriverDatabaseImportService {
     }
 
     private void saveLinkTables(
-            Map<DriverPartyId, DriverPartyEntity> driverPartyLinks,
-            Map<DriverBankAccountId, DriverBankAccountEntity> driverBankAccountLinks,
-            Map<DriverServiceId, DriverServiceEntity> driverServiceLinks,
-            Map<DriverClassAssignmentId, DriverClassAssignmentEntity> driverClassLinks,
-            Map<DriverPropertyId, DriverPropertyEntity> driverProperties,
-            Map<DriverDocumentApprovalId, DriverDocumentApprovalEntity> documentApprovals,
-            Map<DriverMetricId, DriverMetricEntity> driverMetrics
+            Map<DDriverPartyId, DDriverPartyEntity> driverPartyLinks,
+            Map<DDriverBankAccId, DDriverBankAccEntity> driverBankAccountLinks,
+            Map<DDriverServiceId, DDriverServiceEntity> driverServiceLinks,
+            Map<DDriverClassId, DDriverClassEntity> driverClassLinks,
+            Map<DDriverPropertyId, DDriverPropertyEntity> driverProperties,
+            Map<String, DDriverDocumentApprovalEntity> documentApprovals,
+            Map<String, DDriverMetricEntity> driverMetrics
     ) {
         driverBatchInsertService.saveInBatches(new ArrayList<>(driverPartyLinks.values()), driverPartyRepository);
         driverBatchInsertService.saveInBatches(new ArrayList<>(driverBankAccountLinks.values()), driverBankAccountRepository);
@@ -296,132 +284,139 @@ public class DriverDatabaseImportService {
         driverBatchInsertService.saveInBatches(new ArrayList<>(driverMetrics.values()), driverMetricRepository);
     }
 
-    private DriverEntity resolveDriver(Map<String, Object> values, PartyEntity party, RegionEntity region) {
+    private DDriverEntity resolveDriver(Map<String, Object> values, DRegionEntity region) {
         String identityNumber = stringValue(values.get("identity_number"));
         String fullName = stringValue(values.get("full_name"));
-        LocalDate dob = localDateValue(values.get("dob"));
-        DriverEntity driver = null;
+        LocalDateTime dob = toLocalDateTime(values.get("dob"));
+        DDriverEntity driver = null;
 
         if (identityNumber != null) {
             driver = driverRepository.findByIdentityNumber(identityNumber).orElse(null);
-        }
-        if (driver == null && party != null) {
-            driver = driverPartyRepository.findDriverByPhone(party.getPhone()).orElse(null);
         }
         if (driver == null && fullName != null && dob != null) {
             driver = driverRepository.findByFullNameAndDob(fullName, dob).orElse(null);
         }
         if (driver == null) {
-            driver = new DriverEntity();
+            driver = new DDriverEntity();
         }
 
         driver.setFullName(fullName);
         driver.setDob(dob);
-        driver.setGender(stringValue(values.get("gender")));
+        driver.setGender(integerValue(values.get("gender")));
         driver.setIdentityNumber(identityNumber);
-        driver.setStatus(stringValue(values.get("driver_status")));
-        driver.setRegion(region);
+        driver.setStatus(integerValue(values.get("driver_status")));
+        driver.setRegionId(region == null ? null : region.getRegionId());
         return driverRepository.save(driver);
     }
 
-    private PartyEntity resolveParty(String phone, Map<String, PartyEntity> partyCache) {
+    private DPartyEntity resolveParty(String phone, Map<String, DPartyEntity> partyCache) {
         if (phone == null) {
             return null;
         }
         return partyCache.computeIfAbsent(phone, key -> {
-            PartyEntity party = partyRepository.findByPhone(key).orElseGet(PartyEntity::new);
+            DPartyEntity party = partyRepository.findByPhone(key).orElseGet(DPartyEntity::new);
             party.setPhone(key);
+            if (party.getStatus() == null) {
+                party.setStatus(1);
+            }
             return partyRepository.save(party);
         });
     }
 
-    private BankAccountEntity resolveBankAccount(Map<String, Object> values, Map<String, BankAccountEntity> bankAccountCache) {
+    private DBankAccEntity resolveBankAccount(Map<String, Object> values, Map<String, DBankAccEntity> bankAccountCache) {
         String accountNumber = stringValue(values.get("bank_account_number"));
         if (accountNumber == null) {
             return null;
         }
 
-        String bankCode = stringValue(values.get("bank_code"));
-        String bankName = stringValue(values.get("bank_name"));
-        Long bankId = resolveBankId(bankCode, bankName);
+        Integer bankId = resolveBankId(stringValue(values.get("bank_code")), stringValue(values.get("bank_name")));
         String cacheKey = bankId + "|" + accountNumber;
         return bankAccountCache.computeIfAbsent(cacheKey, key -> {
-            BankAccountEntity bankAccount = bankAccountRepository.findByBankIdAndAccountNumber(bankId, accountNumber)
-                    .orElseGet(BankAccountEntity::new);
+            DBankAccEntity bankAccount = bankAccountRepository.findByBankIdAndAccNumber(bankId, accountNumber)
+                    .orElseGet(DBankAccEntity::new);
             bankAccount.setBankId(bankId);
-            bankAccount.setAccountNumber(accountNumber);
-            bankAccount.setAccountName(stringValue(values.get("bank_account_name")));
+            bankAccount.setAccNumber(accountNumber);
+            bankAccount.setAccName(stringValue(values.get("bank_account_name")));
+            if (bankAccount.getIsActived() == null) {
+                bankAccount.setIsActived(1);
+            }
             return bankAccountRepository.save(bankAccount);
         });
     }
 
-    private RegionEntity resolveRegion(String regionName, Map<String, RegionEntity> regions) {
+    private DRegionEntity resolveRegion(String regionName, Map<String, DRegionEntity> regions) {
         if (regionName == null) {
             return null;
         }
         String key = canonicalize(regionName);
-        RegionEntity existing = regions.get(key);
+        DRegionEntity existing = regions.get(key);
         if (existing != null) {
             return existing;
         }
 
-        RegionEntity region = new RegionEntity();
+        DRegionEntity region = new DRegionEntity();
         region.setCode(regionName.trim());
         region.setName(regionName.trim());
-        RegionEntity saved = regionRepository.save(region);
+        region.setStatus(1);
+        DRegionEntity saved = regionRepository.save(region);
         regions.put(canonicalize(saved.getCode()), saved);
         regions.put(canonicalize(saved.getName()), saved);
         return saved;
     }
 
-    private List<ServiceEntity> resolveServices(Object rawServices, Map<String, ServiceEntity> services) {
+    private List<DServiceEntity> resolveServices(Object rawServices, Map<String, DServiceEntity> services) {
         List<String> serviceCodes = stringList(rawServices);
         if (serviceCodes.isEmpty()) {
             return List.of();
         }
 
-        List<ServiceEntity> resolved = new ArrayList<>();
-        Set<Long> seenIds = new LinkedHashSet<>();
+        List<DServiceEntity> resolved = new ArrayList<>();
+        Set<Integer> seenIds = new LinkedHashSet<>();
         for (String serviceCode : serviceCodes) {
             String key = canonicalize(serviceCode);
-            ServiceEntity service = services.get(key);
+            DServiceEntity service = services.get(key);
             if (service == null) {
-                service = new ServiceEntity();
+                service = new DServiceEntity();
                 service.setCode(serviceCode);
                 service.setName(serviceCode);
+                service.setStatus(1);
                 service = serviceRepository.save(service);
                 services.put(canonicalize(service.getCode()), service);
                 services.put(canonicalize(service.getName()), service);
             }
-            if (seenIds.add(service.getId())) {
+            if (seenIds.add(service.getServiceId())) {
                 resolved.add(service);
             }
         }
         return resolved;
     }
 
-    private DriverClassEntity resolveDriverClass(String className, Map<String, DriverClassEntity> classes) {
+    private DClassEntity resolveDriverClass(String className, BigDecimal bonusRate, Map<String, DClassEntity> classes) {
         if (className == null) {
             return null;
         }
         String key = canonicalize(className);
-        DriverClassEntity driverClass = classes.get(key);
+        DClassEntity driverClass = classes.get(key);
         if (driverClass == null) {
-            driverClass = new DriverClassEntity();
+            driverClass = new DClassEntity();
             driverClass.setCode(className);
             driverClass.setName(className);
+            driverClass.setStatus(1);
         }
-        DriverClassEntity saved = driverClassRepository.save(driverClass);
+        if (driverClass.getBonusRate() == null) {
+            driverClass.setBonusRate(bonusRate);
+        }
+        DClassEntity saved = driverClassRepository.save(driverClass);
         classes.put(canonicalize(saved.getCode()), saved);
         classes.put(canonicalize(saved.getName()), saved);
         return saved;
     }
 
     private void addPropertyRows(
-            DriverEntity driver,
+            DDriverEntity driver,
             Map<String, Object> values,
-            Map<String, PropertyEntity> properties,
-            Map<DriverPropertyId, DriverPropertyEntity> driverProperties
+            Map<String, DPropertyEntity> properties,
+            Map<DDriverPropertyId, DDriverPropertyEntity> driverProperties
     ) {
         Map<String, Object> propertyValues = new LinkedHashMap<>(mapValue(values.get("properties")));
         propertyValues.put("ngay_dang_ky", values.get("registered_at"));
@@ -433,104 +428,100 @@ public class DriverDatabaseImportService {
                 continue;
             }
 
-            PropertyEntity property = resolveProperty(entry.getKey(), properties);
-            DriverPropertyEntity driverProperty = new DriverPropertyEntity();
-            driverProperty.setId(new DriverPropertyId(driver.getId(), property.getId()));
-            driverProperty.setDriver(driver);
-            driverProperty.setProperty(property);
+            DPropertyEntity property = resolveProperty(entry.getKey(), properties);
+            DDriverPropertyEntity driverProperty = new DDriverPropertyEntity();
+            driverProperty.setDriverId(driver.getDriverId());
+            driverProperty.setPropertyId(property.getPropertyId());
+            driverProperty.setStatus(1);
             applyPropertyValue(driverProperty, value);
-            driverProperties.put(driverProperty.getId(), driverProperty);
+            driverProperties.put(new DDriverPropertyId(property.getPropertyId(), driver.getDriverId()), driverProperty);
         }
     }
 
     private void addDocumentApprovalRows(
-            DriverEntity driver,
-            String sourceId,
+            DDriverEntity driver,
             Map<String, Object> values,
-            Map<DriverDocumentApprovalId, DriverDocumentApprovalEntity> documentApprovals
+            Map<String, DDriverDocumentApprovalEntity> documentApprovals
     ) {
         Map<String, Object> approvals = mapValue(values.get("document_approvals"));
-        Map<String, Object> properties = mapValue(values.get("properties"));
-        String phone = stringValue(values.get("phone"));
-
         for (Map.Entry<String, Object> entry : approvals.entrySet()) {
-            if (entry.getValue() == null) {
+            Integer status = integerValue(entry.getValue());
+            if (status == null) {
                 continue;
             }
 
-            String documentType = entry.getKey();
-            String documentId = resolveDocumentId(documentType, sourceId, phone, properties);
-            DriverDocumentApprovalEntity approval = new DriverDocumentApprovalEntity();
-            approval.setId(new DriverDocumentApprovalId(driver.getId(), documentType, documentId));
-            approval.setDriver(driver);
-            approval.setStatus(String.valueOf(entry.getValue()));
-            documentApprovals.put(approval.getId(), approval);
+            DDriverDocumentApprovalEntity approval = new DDriverDocumentApprovalEntity();
+            approval.setDriverId(driver.getDriverId());
+            approval.setDocumentType(entry.getKey());
+            approval.setStatus(status);
+            documentApprovals.put(driver.getDriverId() + "|" + entry.getKey(), approval);
         }
     }
 
     private void addMetricRows(
-            DriverEntity driver,
+            DDriverEntity driver,
             Map<String, Object> values,
-            Map<String, CriteriaEntity> criteria,
-            Map<DriverMetricId, DriverMetricEntity> driverMetrics
+            Map<String, DCriteriaEntity> criteria,
+            Map<String, DDriverMetricEntity> driverMetrics
     ) {
         BigDecimal drivingExperience = bigDecimalValue(values.get("driving_experience_years"));
         if (drivingExperience == null) {
             return;
         }
 
-        CriteriaEntity criterion = resolveCriteria(METRIC_DRIVING_EXPERIENCE, criteria);
-        DriverMetricEntity metric = new DriverMetricEntity();
-        metric.setId(new DriverMetricId(driver.getId(), criterion.getId()));
-        metric.setDriver(driver);
-        metric.setCriteria(criterion);
-        metric.setValueNumber(drivingExperience);
-        driverMetrics.put(metric.getId(), metric);
+        DCriteriaEntity criterion = resolveCriteria(METRIC_DRIVING_EXPERIENCE, criteria);
+        DDriverMetricEntity metric = new DDriverMetricEntity();
+        metric.setDriverId(driver.getDriverId());
+        metric.setCriteriaId(criterion.getCriteriaId());
+        metric.setValue(drivingExperience);
+        driverMetrics.put(driver.getDriverId() + "|" + criterion.getCriteriaId(), metric);
     }
 
-    private PropertyEntity resolveProperty(String code, Map<String, PropertyEntity> properties) {
+    private DPropertyEntity resolveProperty(String code, Map<String, DPropertyEntity> properties) {
         String key = canonicalize(code);
-        PropertyEntity property = properties.get(key);
+        DPropertyEntity property = properties.get(key);
         if (property != null) {
             return property;
         }
 
-        PropertyEntity created = new PropertyEntity();
+        DPropertyEntity created = new DPropertyEntity();
         created.setCode(code);
         created.setName(code);
-        created.setMandatory(Boolean.FALSE);
-        PropertyEntity saved = propertyRepository.save(created);
+        created.setMandatory(0);
+        created.setIsActive(1);
+        DPropertyEntity saved = propertyRepository.save(created);
         properties.put(canonicalize(saved.getCode()), saved);
         properties.put(canonicalize(saved.getName()), saved);
         return saved;
     }
 
-    private CriteriaEntity resolveCriteria(String code, Map<String, CriteriaEntity> criteria) {
+    private DCriteriaEntity resolveCriteria(String code, Map<String, DCriteriaEntity> criteria) {
         String key = canonicalize(code);
-        CriteriaEntity criterion = criteria.get(key);
+        DCriteriaEntity criterion = criteria.get(key);
         if (criterion != null) {
             return criterion;
         }
 
-        CriteriaEntity created = new CriteriaEntity();
+        DCriteriaEntity created = new DCriteriaEntity();
         created.setCode(code);
         created.setName(code);
-        CriteriaEntity saved = criteriaRepository.save(created);
+        created.setStatus(1);
+        DCriteriaEntity saved = criteriaRepository.save(created);
         criteria.put(canonicalize(saved.getCode()), saved);
         criteria.put(canonicalize(saved.getName()), saved);
         return saved;
     }
 
-    private void applyPropertyValue(DriverPropertyEntity driverProperty, Object value) {
-        LocalDate dateValue = localDateValue(value);
+    private void applyPropertyValue(DDriverPropertyEntity driverProperty, Object value) {
+        LocalDateTime dateValue = toLocalDateTime(value);
         if (dateValue != null) {
             driverProperty.setValueDate(dateValue);
             return;
         }
 
         BigDecimal numberValue = bigDecimalValue(value);
-        if (numberValue != null && !(value instanceof String)) {
-            driverProperty.setValueNumber(numberValue);
+        if (numberValue != null && numberValue.scale() <= 0) {
+            driverProperty.setValueNumber(numberValue.longValue());
             return;
         }
 
@@ -549,71 +540,54 @@ public class DriverDatabaseImportService {
         return value.contains("/") || value.contains("\\");
     }
 
-    private String resolveDocumentId(String documentType, String sourceId, String phone, Map<String, Object> properties) {
-        String propertyCode = DOCUMENT_TO_PROPERTY.get(documentType);
-        if (propertyCode != null) {
-            String path = stringValue(properties.get(propertyCode));
-            if (path != null) {
-                return path;
-            }
-        }
-        if ("xac_thuc_sdt".equals(documentType) && phone != null) {
-            return phone;
-        }
-        if (sourceId != null && !sourceId.isBlank()) {
-            return sourceId.trim() + ":" + documentType;
-        }
-        return documentType;
-    }
-
-    private Long resolveBankId(String bankCode, String bankName) {
+    private Integer resolveBankId(String bankCode, String bankName) {
         String keySource = bankCode != null ? bankCode : bankName;
         String stableKey = canonicalize(keySource == null ? "unknown_bank" : keySource);
         CRC32 crc32 = new CRC32();
         crc32.update(stableKey.getBytes(StandardCharsets.UTF_8));
         long bankId = crc32.getValue();
-        return bankId == 0 ? 1L : bankId;
+        return (int) (bankId == 0 ? 1L : bankId);
     }
 
-    private Map<String, RegionEntity> indexRegions(List<RegionEntity> entities) {
-        Map<String, RegionEntity> index = new LinkedHashMap<>();
-        for (RegionEntity entity : entities) {
+    private Map<String, DRegionEntity> indexRegions(List<DRegionEntity> entities) {
+        Map<String, DRegionEntity> index = new LinkedHashMap<>();
+        for (DRegionEntity entity : entities) {
             index.put(canonicalize(entity.getCode()), entity);
             index.put(canonicalize(entity.getName()), entity);
         }
         return index;
     }
 
-    private Map<String, ServiceEntity> indexServices(List<ServiceEntity> entities) {
-        Map<String, ServiceEntity> index = new LinkedHashMap<>();
-        for (ServiceEntity entity : entities) {
+    private Map<String, DServiceEntity> indexServices(List<DServiceEntity> entities) {
+        Map<String, DServiceEntity> index = new LinkedHashMap<>();
+        for (DServiceEntity entity : entities) {
             index.put(canonicalize(entity.getCode()), entity);
             index.put(canonicalize(entity.getName()), entity);
         }
         return index;
     }
 
-    private Map<String, DriverClassEntity> indexDriverClasses(List<DriverClassEntity> entities) {
-        Map<String, DriverClassEntity> index = new LinkedHashMap<>();
-        for (DriverClassEntity entity : entities) {
+    private Map<String, DClassEntity> indexDriverClasses(List<DClassEntity> entities) {
+        Map<String, DClassEntity> index = new LinkedHashMap<>();
+        for (DClassEntity entity : entities) {
             index.put(canonicalize(entity.getCode()), entity);
             index.put(canonicalize(entity.getName()), entity);
         }
         return index;
     }
 
-    private Map<String, PropertyEntity> indexProperties(List<PropertyEntity> entities) {
-        Map<String, PropertyEntity> index = new LinkedHashMap<>();
-        for (PropertyEntity entity : entities) {
+    private Map<String, DPropertyEntity> indexProperties(List<DPropertyEntity> entities) {
+        Map<String, DPropertyEntity> index = new LinkedHashMap<>();
+        for (DPropertyEntity entity : entities) {
             index.put(canonicalize(entity.getCode()), entity);
             index.put(canonicalize(entity.getName()), entity);
         }
         return index;
     }
 
-    private Map<String, CriteriaEntity> indexCriteria(List<CriteriaEntity> entities) {
-        Map<String, CriteriaEntity> index = new LinkedHashMap<>();
-        for (CriteriaEntity entity : entities) {
+    private Map<String, DCriteriaEntity> indexCriteria(List<DCriteriaEntity> entities) {
+        Map<String, DCriteriaEntity> index = new LinkedHashMap<>();
+        for (DCriteriaEntity entity : entities) {
             index.put(canonicalize(entity.getCode()), entity);
             index.put(canonicalize(entity.getName()), entity);
         }
@@ -639,12 +613,12 @@ public class DriverDatabaseImportService {
                 .toList();
     }
 
-    private LocalDate localDateValue(Object value) {
-        if (value instanceof LocalDate localDate) {
-            return localDate;
-        }
+    private LocalDateTime toLocalDateTime(Object value) {
         if (value instanceof LocalDateTime localDateTime) {
-            return localDateTime.toLocalDate();
+            return localDateTime;
+        }
+        if (value instanceof LocalDate localDate) {
+            return localDate.atStartOfDay();
         }
         return null;
     }
@@ -661,6 +635,19 @@ public class DriverDatabaseImportService {
         }
         if (value instanceof Double doubleValue) {
             return BigDecimal.valueOf(doubleValue);
+        }
+        return null;
+    }
+
+    private Integer integerValue(Object value) {
+        if (value instanceof Integer integer) {
+            return integer;
+        }
+        if (value instanceof Long longValue) {
+            return longValue.intValue();
+        }
+        if (value instanceof String text && !text.isBlank()) {
+            return Integer.valueOf(text);
         }
         return null;
     }
@@ -701,8 +688,7 @@ public class DriverDatabaseImportService {
 
     private record RowContext(
             NormalizedDriverImportRow row,
-            StagingDriverImportEntity stagingRow,
-            DriverEntity driver,
+            DDriverEntity driver,
             Map<String, Object> values
     ) {
     }

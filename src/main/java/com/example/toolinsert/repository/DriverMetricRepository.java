@@ -1,8 +1,7 @@
 package com.example.toolinsert.repository;
 
-import com.example.toolinsert.entity.DriverMetricEntity;
-import com.example.toolinsert.entity.id.DriverMetricId;
+import com.example.toolinsert.entity.DDriverMetricEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface DriverMetricRepository extends JpaRepository<DriverMetricEntity, DriverMetricId> {
+public interface DriverMetricRepository extends JpaRepository<DDriverMetricEntity, Long> {
 }

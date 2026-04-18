@@ -1,10 +1,10 @@
 package com.example.toolinsert.repository;
 
-import com.example.toolinsert.entity.PartyEntity;
+import com.example.toolinsert.entity.DPartyEntity;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface PartyRepository extends JpaRepository<PartyEntity, Long> {
+public interface PartyRepository extends JpaRepository<DPartyEntity, Long> {
 
-    Optional<PartyEntity> findByPhone(String phone);
+    Optional<DPartyEntity> findByPhone(String phone);
 }

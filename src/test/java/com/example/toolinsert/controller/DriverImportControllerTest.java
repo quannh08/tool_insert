@@ -1,7 +1,5 @@
 package com.example.toolinsert.controller;
 
-import com.example.toolinsert.repository.DriverImportJobRepository;
-import com.example.toolinsert.repository.StagingDriverImportRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +25,6 @@ class DriverImportControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private DriverImportJobRepository driverImportJobRepository;
-
-    @Autowired
-    private StagingDriverImportRepository stagingDriverImportRepository;
-
-    @Autowired
     private JdbcTemplate jdbcTemplate;
 
     @BeforeEach
@@ -52,12 +44,10 @@ class DriverImportControllerTest {
         jdbcTemplate.execute("delete from D_CLASS");
         jdbcTemplate.execute("delete from D_SERVICE");
         jdbcTemplate.execute("delete from D_REGION");
-        stagingDriverImportRepository.deleteAll();
-        driverImportJobRepository.deleteAll();
     }
 
     @Test
-    void importsCsvIntoStagingAndReturnsSummary() throws Exception {
+    void importsCsvDirectlyIntoDatabaseAndReturnsSummary() throws Exception {
         String payload = String.join("\n",
                 "id,ten,sdt,gioi_tinh,trang_thai_tai_xe,khu_vuc_hoat_dong,loai_xe_dang_ky,hang_tai_xe,cccd,stk,ten_nguoi_thu_huong,ten_ngan_hang,ngan_hang_viet_tat,kinh_nghiem_lai_xe,muc_coc",
                 "1,Driver One,0972326031,Nam,Active,Ha Noi,Manual,Hang 1,123456789012,00112233,DRIVER ONE,Techcombank,TCB,3,2000000",
@@ -112,7 +102,7 @@ class DriverImportControllerTest {
     }
 
     @Test
-    void truncatesOversizedSourceIdInsteadOfFailingTheWholeImport() throws Exception {
+    void importsLongSourceIdWithoutUsingStagingState() throws Exception {
         String longSourceId = "X".repeat(700);
         String payload = String.join("\n",
                 "id,ten,sdt,gioi_tinh,trang_thai_tai_xe,khu_vuc_hoat_dong,loai_xe_dang_ky,hang_tai_xe",

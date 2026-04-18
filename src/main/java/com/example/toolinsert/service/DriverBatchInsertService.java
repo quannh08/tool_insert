@@ -23,7 +23,7 @@ public class DriverBatchInsertService {
         int batchSize = Math.max(1, properties.getBatchSize());
         for (int start = 0; start < items.size(); start += batchSize) {
             int end = Math.min(start + batchSize, items.size());
-            repository.saveAll(items.subList(start, end));
+            repository.saveAllAndFlush(items.subList(start, end));
         }
     }
 }

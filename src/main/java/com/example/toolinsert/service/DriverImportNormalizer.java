@@ -4,6 +4,7 @@ import com.example.toolinsert.model.NormalizedDriverImportRow;
 import com.example.toolinsert.model.ParsedDelimitedRow;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.text.Normalizer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -96,30 +97,29 @@ public class DriverImportNormalizer {
         }
     }
 
-    private String normalizeGender(String value, int rowNumber, List<String> errors) {
+    private Integer normalizeGender(String value, int rowNumber, List<String> errors) {
         if (value == null) {
             return null;
         }
         String normalized = value.trim().toLowerCase(Locale.ROOT);
         if ("nam".equals(normalized)) {
-            return "1";
+            return 1;
         }
         if ("nu".equals(normalized) || "nữ".equals(normalized)) {
-            return "0";
+            return 0;
         }
         errors.add("Row " + rowNumber + ": unsupported value for 'gioi_tinh'.");
         return null;
     }
 
-    private String normalizeDriverStatus(String value) {
+    private Integer normalizeDriverStatus(String value) {
         if (value == null) {
             return null;
         }
         return switch (canonicalize(value)) {
-            case "active" -> "ACTIVE";
-            case "ho_so_chua_dat" -> "PROFILE_REJECTED";
-            case "inactive" -> "INACTIVE";
-            default -> "UNKNOWN";
+            case "active", "da_ky" -> 1;
+            case "ho_so_chua_dat", "inactive", "chua_ky" -> 0;
+            default -> 0;
         };
     }
 
@@ -182,12 +182,12 @@ public class DriverImportNormalizer {
         }
     }
 
-    private Double parseDecimal(String value, String field, int rowNumber, List<String> errors) {
+    private BigDecimal parseDecimal(String value, String field, int rowNumber, List<String> errors) {
         if (value == null) {
             return null;
         }
         try {
-            return Double.valueOf(value);
+            return new BigDecimal(value);
         } catch (NumberFormatException exception) {
             errors.add("Row " + rowNumber + ": field '" + field + "' must be numeric.");
             return null;

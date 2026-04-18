@@ -46,11 +46,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.zip.CRC32;
-import org.cmsdriversservice.entity.id.DDriverBankAccId;
-import org.cmsdriversservice.entity.id.DDriverClassId;
-import org.cmsdriversservice.entity.id.DDriverPartyId;
-import org.cmsdriversservice.entity.id.DDriverPropertyId;
-import org.cmsdriversservice.entity.id.DDriverServiceId;
+import com.example.toolinsert.constant.DriverConstants;
+import com.example.toolinsert.entity.id.DDriverBankAccId;
+import com.example.toolinsert.entity.id.DDriverClassId;
+import com.example.toolinsert.entity.id.DDriverPartyId;
+import com.example.toolinsert.entity.id.DDriverPropertyId;
+import com.example.toolinsert.entity.id.DDriverServiceId;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -419,8 +420,8 @@ public class DriverDatabaseImportService {
             Map<DDriverPropertyId, DDriverPropertyEntity> driverProperties
     ) {
         Map<String, Object> propertyValues = new LinkedHashMap<>(mapValue(values.get("properties")));
-        propertyValues.put("ngay_dang_ky", values.get("registered_at"));
-        propertyValues.put("ngay_kich_hoat", values.get("activated_at"));
+        propertyValues.put(DriverImportMapping.PROPERTY_REGISTERED_AT, values.get("registered_at"));
+        propertyValues.put(DriverImportMapping.PROPERTY_ACTIVATED_AT, values.get("activated_at"));
 
         for (Map.Entry<String, Object> entry : propertyValues.entrySet()) {
             Object value = entry.getValue();
@@ -487,8 +488,9 @@ public class DriverDatabaseImportService {
         DPropertyEntity created = new DPropertyEntity();
         created.setCode(code);
         created.setName(code);
+        created.setFieldTypeId(DriverConstants.DEFAULT_FIELD_TYPE_ID);
         created.setMandatory(0);
-        created.setIsActive(1);
+        created.setIsActive(DriverConstants.STATUS_ACTIVE);
         DPropertyEntity saved = propertyRepository.save(created);
         properties.put(canonicalize(saved.getCode()), saved);
         properties.put(canonicalize(saved.getName()), saved);

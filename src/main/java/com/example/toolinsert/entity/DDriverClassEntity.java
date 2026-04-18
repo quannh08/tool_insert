@@ -3,7 +3,7 @@ package com.example.toolinsert.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.cmsdriversservice.entity.id.DDriverClassId;
+import com.example.toolinsert.entity.id.DDriverClassId;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 

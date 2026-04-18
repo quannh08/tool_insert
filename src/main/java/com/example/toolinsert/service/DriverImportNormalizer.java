@@ -2,8 +2,6 @@ package com.example.toolinsert.service;
 
 import com.example.toolinsert.model.NormalizedDriverImportRow;
 import com.example.toolinsert.model.ParsedDelimitedRow;
-import org.springframework.stereotype.Component;
-
 import java.math.BigDecimal;
 import java.text.Normalizer;
 import java.time.LocalDate;
@@ -15,6 +13,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import com.example.toolinsert.constant.DriverConstants;
+import org.springframework.stereotype.Component;
 
 @Component
 public class DriverImportNormalizer {
@@ -27,72 +27,212 @@ public class DriverImportNormalizer {
         Map<String, Object> normalized = new LinkedHashMap<>();
         List<String> errors = new ArrayList<>();
 
-        normalized.put("source_id", rawValues.get("id"));
-        normalized.put("full_name", normalizeText(rawValues.get("ten")));
-        normalized.put("dob", parseDate(rawValues.get("ngay_sinh"), "ngay_sinh", row.rowNumber(), errors));
-        normalized.put("gender", normalizeGender(rawValues.get("gioi_tinh"), row.rowNumber(), errors));
-        normalized.put("identity_number", normalizeDigitString(rawValues.get("cccd"), "cccd", row.rowNumber(), errors));
-        normalized.put("driver_status", normalizeDriverStatus(rawValues.get("trang_thai_tai_xe")));
-        normalized.put("contract_status", normalizeContractStatus(rawValues.get("trang_thai_hop_dong")));
-        normalized.put("region_name", normalizeText(rawValues.get("khu_vuc_hoat_dong")));
-        normalized.put("referrer_source_id", normalizeText(rawValues.get("nguoi_gioi_thieu")));
-        normalized.put("phone", normalizeDigitString(rawValues.get("sdt"), "sdt", row.rowNumber(), errors));
-        normalized.put("bank_account_number", normalizeDigitString(rawValues.get("stk"), "stk", row.rowNumber(), errors));
-        normalized.put("bank_account_name", normalizeText(rawValues.get("ten_nguoi_thu_huong")));
-        normalized.put("bank_name", normalizeText(rawValues.get("ten_ngan_hang")));
-        normalized.put("bank_code", normalizeText(rawValues.get("ngan_hang_viet_tat")));
-        normalized.put("service_codes", splitMultiValue(rawValues.get("loai_xe_dang_ky")));
-        normalized.put("driver_class", normalizeText(rawValues.get("hang_tai_xe")));
-        normalized.put("driving_experience_years", parseInteger(rawValues.get("kinh_nghiem_lai_xe"), "kinh_nghiem_lai_xe", row.rowNumber(), errors));
-        normalized.put("bonus_rate", parseDecimal(rawValues.get("muc_coc"), "muc_coc", row.rowNumber(), errors));
-        normalized.put("registered_at", parseDateTime(rawValues.get("ngay_dang_ky"), "ngay_dang_ky", row.rowNumber(), errors));
-        normalized.put("activated_at", parseDateTime(rawValues.get("ngay_kich_hoat"), "ngay_kich_hoat", row.rowNumber(), errors));
+        normalized.put("source_id", rawValues.get(DriverImportMapping.HEADER_SOURCE_ID));
+        normalized.put("full_name", normalizeText(rawValues.get(DriverImportMapping.HEADER_FULL_NAME)));
+        normalized.put(
+                "dob",
+                parseDate(rawValues.get(DriverImportMapping.HEADER_DOB), DriverImportMapping.HEADER_DOB, row.rowNumber(), errors)
+        );
+        normalized.put(
+                "gender",
+                normalizeGender(rawValues.get(DriverImportMapping.HEADER_GENDER), row.rowNumber(), errors)
+        );
+        normalized.put(
+                "identity_number",
+                normalizeDigitString(
+                        rawValues.get(DriverImportMapping.HEADER_IDENTITY_NUMBER),
+                        DriverImportMapping.HEADER_IDENTITY_NUMBER,
+                        row.rowNumber(),
+                        errors
+                )
+        );
+        normalized.put("driver_status", normalizeDriverStatus(rawValues.get(DriverImportMapping.HEADER_DRIVER_STATUS)));
+        normalized.put("contract_status", normalizeContractStatus(rawValues.get(DriverImportMapping.HEADER_CONTRACT_STATUS)));
+        normalized.put("region_name", normalizeText(rawValues.get(DriverImportMapping.HEADER_REGION_NAME)));
+        normalized.put("referrer_source_id", normalizeText(rawValues.get(DriverImportMapping.HEADER_REFERRER_SOURCE_ID)));
+        normalized.put(
+                "phone",
+                normalizeDigitString(rawValues.get(DriverImportMapping.HEADER_PHONE), DriverImportMapping.HEADER_PHONE, row.rowNumber(), errors)
+        );
+        normalized.put(
+                "bank_account_number",
+                normalizeDigitString(
+                        rawValues.get(DriverImportMapping.HEADER_BANK_ACCOUNT_NUMBER),
+                        DriverImportMapping.HEADER_BANK_ACCOUNT_NUMBER,
+                        row.rowNumber(),
+                        errors
+                )
+        );
+        normalized.put("bank_account_name", normalizeText(rawValues.get(DriverImportMapping.HEADER_BANK_ACCOUNT_NAME)));
+        normalized.put("bank_name", normalizeText(rawValues.get(DriverImportMapping.HEADER_BANK_NAME)));
+        normalized.put("bank_code", normalizeText(rawValues.get(DriverImportMapping.HEADER_BANK_CODE)));
+        normalized.put("service_codes", splitMultiValue(rawValues.get(DriverImportMapping.HEADER_SERVICE_CODES)));
+        normalized.put("driver_class", normalizeText(rawValues.get(DriverImportMapping.HEADER_DRIVER_CLASS)));
+        normalized.put(
+                "driving_experience_years",
+                parseInteger(
+                        rawValues.get(DriverImportMapping.HEADER_DRIVING_EXPERIENCE_YEARS),
+                        DriverImportMapping.HEADER_DRIVING_EXPERIENCE_YEARS,
+                        row.rowNumber(),
+                        errors
+                )
+        );
+        normalized.put(
+                "bonus_rate",
+                parseDecimal(rawValues.get(DriverImportMapping.HEADER_BONUS_RATE), DriverImportMapping.HEADER_BONUS_RATE, row.rowNumber(), errors)
+        );
+        normalized.put(
+                "registered_at",
+                parseDateTime(
+                        rawValues.get(DriverImportMapping.HEADER_REGISTERED_AT),
+                        DriverImportMapping.HEADER_REGISTERED_AT,
+                        row.rowNumber(),
+                        errors
+                )
+        );
+        normalized.put(
+                "activated_at",
+                parseDateTime(
+                        rawValues.get(DriverImportMapping.HEADER_ACTIVATED_AT),
+                        DriverImportMapping.HEADER_ACTIVATED_AT,
+                        row.rowNumber(),
+                        errors
+                )
+        );
         normalized.put("properties", normalizePropertyValues(rawValues, row.rowNumber(), errors));
         normalized.put("document_approvals", normalizeDocumentApprovals(rawValues));
 
         validateRequired(rawValues, row.rowNumber(), errors);
-        return new NormalizedDriverImportRow(row.rowNumber(), rawValues.get("id"), normalized, List.copyOf(errors));
+        return new NormalizedDriverImportRow(
+                row.rowNumber(),
+                rawValues.get(DriverImportMapping.HEADER_SOURCE_ID),
+                normalized,
+                List.copyOf(errors)
+        );
     }
 
     private Map<String, Object> normalizePropertyValues(Map<String, String> rawValues, int rowNumber, List<String> errors) {
         Map<String, Object> properties = new LinkedHashMap<>();
-        properties.put("ngay_cap_cccd", parseDate(rawValues.get("ngay_cap_cccd"), "ngay_cap_cccd", rowNumber, errors));
-        properties.put("noi_cap_cccd", normalizeText(rawValues.get("noi_cap_cccd")));
-        properties.put("ngay_het_han_cccd", parseDate(rawValues.get("ngay_het_han_cccd"), "ngay_het_han_cccd", rowNumber, errors));
-        properties.put("so_gplx", normalizeText(rawValues.get("so_gplx")));
-        properties.put("so_seria_gplx", normalizeText(rawValues.get("so_seria_gplx")));
-        properties.put("ngay_cap_gplx", parseDate(rawValues.get("ngay_cap_gplx"), "ngay_cap_gplx", rowNumber, errors));
-        properties.put("ngay_het_han_gplx", parseDate(rawValues.get("ngay_het_han_gplx"), "ngay_het_han_gplx", rowNumber, errors));
-        properties.put("dia_chi", normalizeText(rawValues.get("dia_chi")));
-        properties.put("dia_chi_hien_tai", normalizeText(rawValues.get("dia_chi_hien_tai")));
-        properties.put("cccd_mat_truoc", cleanFilePath(rawValues.get("cccd_mat_truoc")));
-        properties.put("cccd_mat_sau", cleanFilePath(rawValues.get("cccd_mat_sau")));
-        properties.put("gplx_mat_truoc", cleanFilePath(rawValues.get("gplx_mat_truoc")));
-        properties.put("gplx_mat_sau", cleanFilePath(rawValues.get("gplx_mat_sau")));
-        properties.put("giay_xet_nghiem_ma_tuy", cleanFilePath(rawValues.get("giay_xet_nghiem_ma_tuy")));
-        properties.put("ly_lich_tu_phap", cleanFilePath(rawValues.get("ly_lich_tu_phap")));
-        properties.put("giay_xet_nghiem_hiv", cleanFilePath(rawValues.get("giay_xet_nghiem_hiv")));
+        String rawServiceCodes = rawValues.get(DriverImportMapping.HEADER_SERVICE_CODES);
+        properties.put(
+                DriverImportMapping.propertyCode(DriverImportMapping.HEADER_CCCD_ISSUE_DATE),
+                parseDate(
+                        rawValues.get(DriverImportMapping.HEADER_CCCD_ISSUE_DATE),
+                        DriverImportMapping.HEADER_CCCD_ISSUE_DATE,
+                        rowNumber,
+                        errors
+                )
+        );
+        properties.put(
+                DriverImportMapping.propertyCode(DriverImportMapping.HEADER_CCCD_ISSUE_PLACE),
+                normalizeText(rawValues.get(DriverImportMapping.HEADER_CCCD_ISSUE_PLACE))
+        );
+        properties.put(
+                DriverImportMapping.propertyCode(DriverImportMapping.HEADER_CCCD_EXPIRY_DATE),
+                parseDate(
+                        rawValues.get(DriverImportMapping.HEADER_CCCD_EXPIRY_DATE),
+                        DriverImportMapping.HEADER_CCCD_EXPIRY_DATE,
+                        rowNumber,
+                        errors
+                )
+        );
+        properties.put(
+                DriverImportMapping.licensePropertyCode(DriverImportMapping.HEADER_LICENSE_NUMBER, rawServiceCodes),
+                normalizeText(rawValues.get(DriverImportMapping.HEADER_LICENSE_NUMBER))
+        );
+        properties.put(
+                DriverImportMapping.licensePropertyCode(DriverImportMapping.HEADER_LICENSE_SERIAL_NUMBER, rawServiceCodes),
+                normalizeText(rawValues.get(DriverImportMapping.HEADER_LICENSE_SERIAL_NUMBER))
+        );
+        properties.put(
+                DriverImportMapping.licensePropertyCode(DriverImportMapping.HEADER_LICENSE_ISSUE_DATE, rawServiceCodes),
+                parseDate(
+                        rawValues.get(DriverImportMapping.HEADER_LICENSE_ISSUE_DATE),
+                        DriverImportMapping.HEADER_LICENSE_ISSUE_DATE,
+                        rowNumber,
+                        errors
+                )
+        );
+        properties.put(
+                DriverImportMapping.licensePropertyCode(DriverImportMapping.HEADER_LICENSE_EXPIRY_DATE, rawServiceCodes),
+                parseDate(
+                        rawValues.get(DriverImportMapping.HEADER_LICENSE_EXPIRY_DATE),
+                        DriverImportMapping.HEADER_LICENSE_EXPIRY_DATE,
+                        rowNumber,
+                        errors
+                )
+        );
+        properties.put(
+                DriverImportMapping.propertyCode(DriverImportMapping.HEADER_PERMANENT_ADDRESS),
+                normalizeText(rawValues.get(DriverImportMapping.HEADER_PERMANENT_ADDRESS))
+        );
+        properties.put(
+                DriverImportMapping.propertyCode(DriverImportMapping.HEADER_CURRENT_ADDRESS),
+                normalizeText(rawValues.get(DriverImportMapping.HEADER_CURRENT_ADDRESS))
+        );
+        properties.put(
+                DriverImportMapping.propertyCode(DriverImportMapping.HEADER_CCCD_FRONT_IMAGE),
+                cleanFilePath(rawValues.get(DriverImportMapping.HEADER_CCCD_FRONT_IMAGE))
+        );
+        properties.put(
+                DriverImportMapping.propertyCode(DriverImportMapping.HEADER_CCCD_BACK_IMAGE),
+                cleanFilePath(rawValues.get(DriverImportMapping.HEADER_CCCD_BACK_IMAGE))
+        );
+        properties.put(
+                DriverImportMapping.licensePropertyCode(DriverImportMapping.HEADER_LICENSE_FRONT_IMAGE, rawServiceCodes),
+                cleanFilePath(rawValues.get(DriverImportMapping.HEADER_LICENSE_FRONT_IMAGE))
+        );
+        properties.put(
+                DriverImportMapping.licensePropertyCode(DriverImportMapping.HEADER_LICENSE_BACK_IMAGE, rawServiceCodes),
+                cleanFilePath(rawValues.get(DriverImportMapping.HEADER_LICENSE_BACK_IMAGE))
+        );
+        properties.put(
+                DriverImportMapping.propertyCode(DriverImportMapping.HEADER_DRUG_TEST_CERTIFICATE),
+                cleanFilePath(rawValues.get(DriverImportMapping.HEADER_DRUG_TEST_CERTIFICATE))
+        );
+        properties.put(
+                DriverImportMapping.propertyCode(DriverImportMapping.HEADER_CRIMINAL_RECORD_CERTIFICATE),
+                cleanFilePath(rawValues.get(DriverImportMapping.HEADER_CRIMINAL_RECORD_CERTIFICATE))
+        );
+        properties.put(
+                DriverImportMapping.propertyCode(DriverImportMapping.HEADER_HIV_TEST_CERTIFICATE),
+                cleanFilePath(rawValues.get(DriverImportMapping.HEADER_HIV_TEST_CERTIFICATE))
+        );
         return properties;
     }
 
     private Map<String, Object> normalizeDocumentApprovals(Map<String, String> rawValues) {
         Map<String, Object> approvals = new LinkedHashMap<>();
-        approvals.put("cccd_mat_truoc", normalizeApprovalStatus(rawValues.get("trang_thai_cccd_mat_truoc")));
-        approvals.put("cccd_mat_sau", normalizeApprovalStatus(rawValues.get("trang_thai_cccd_mat_sau")));
-        approvals.put("gplx_mat_truoc", normalizeApprovalStatus(rawValues.get("trang_thai_gplx_mat_truoc")));
-        approvals.put("gplx_mat_sau", normalizeApprovalStatus(rawValues.get("trang_thai_gplx_mat_sau")));
-        approvals.put("giay_xet_nghiem_ma_tuy", normalizeApprovalStatus(rawValues.get("trang_thai_giay_xet_nghiem_ma_tuy")));
-        approvals.put("ly_lich_tu_phap", normalizeApprovalStatus(rawValues.get("trang_thai_ly_lich_tu_phap")));
-        approvals.put("giay_xet_nghiem_hiv", normalizeApprovalStatus(rawValues.get("trang_thai_giay_xet_nghiem_hiv")));
-        approvals.put("xac_thuc_sdt", normalizeApprovalStatus(rawValues.get("trang_thai_xac_thuc_sdt")));
+        String rawServiceCodes = rawValues.get(DriverImportMapping.HEADER_SERVICE_CODES);
+        putDocumentApproval(approvals, DriverImportMapping.HEADER_CCCD_FRONT_STATUS, rawValues, rawServiceCodes);
+        putDocumentApproval(approvals, DriverImportMapping.HEADER_CCCD_BACK_STATUS, rawValues, rawServiceCodes);
+        putDocumentApproval(approvals, DriverImportMapping.HEADER_LICENSE_FRONT_STATUS, rawValues, rawServiceCodes);
+        putDocumentApproval(approvals, DriverImportMapping.HEADER_LICENSE_BACK_STATUS, rawValues, rawServiceCodes);
+        putDocumentApproval(approvals, DriverImportMapping.HEADER_DRUG_TEST_STATUS, rawValues, rawServiceCodes);
+        putDocumentApproval(approvals, DriverImportMapping.HEADER_CRIMINAL_RECORD_STATUS, rawValues, rawServiceCodes);
+        putDocumentApproval(approvals, DriverImportMapping.HEADER_HIV_TEST_STATUS, rawValues, rawServiceCodes);
+        putDocumentApproval(approvals, DriverImportMapping.HEADER_PHONE_VERIFICATION_STATUS, rawValues, rawServiceCodes);
         return approvals;
     }
 
+    private void putDocumentApproval(
+            Map<String, Object> approvals,
+            String header,
+            Map<String, String> rawValues,
+            String rawServiceCodes
+    ) {
+        String documentCode = DriverImportMapping.documentCode(header, rawServiceCodes);
+        if (documentCode == null) {
+            return;
+        }
+        approvals.put(documentCode, normalizeApprovalStatus(rawValues.get(header)));
+    }
+
     private void validateRequired(Map<String, String> rawValues, int rowNumber, List<String> errors) {
-        if (rawValues.get("ten") == null) {
+        if (rawValues.get(DriverImportMapping.HEADER_FULL_NAME) == null) {
             errors.add("Row " + rowNumber + ": field 'ten' is required.");
         }
-        if (rawValues.get("sdt") == null) {
+        if (rawValues.get(DriverImportMapping.HEADER_PHONE) == null) {
             errors.add("Row " + rowNumber + ": field 'sdt' is required.");
         }
     }
@@ -101,12 +241,12 @@ public class DriverImportNormalizer {
         if (value == null) {
             return null;
         }
-        String normalized = value.trim().toLowerCase(Locale.ROOT);
+        String normalized = canonicalize(value);
         if ("nam".equals(normalized)) {
-            return 1;
+            return DriverConstants.GENDER_MALE;
         }
-        if ("nu".equals(normalized) || "nữ".equals(normalized)) {
-            return 0;
+        if ("nu".equals(normalized)) {
+            return DriverConstants.GENDER_FEMALE;
         }
         errors.add("Row " + rowNumber + ": unsupported value for 'gioi_tinh'.");
         return null;
@@ -117,9 +257,9 @@ public class DriverImportNormalizer {
             return null;
         }
         return switch (canonicalize(value)) {
-            case "active", "da_ky" -> 1;
-            case "ho_so_chua_dat", "inactive", "chua_ky" -> 0;
-            default -> 0;
+            case "active", "da_ky" -> DriverConstants.DRIVER_STATUS_ACTIVE;
+            case "ho_so_chua_dat", "inactive", "chua_ky" -> DriverConstants.DRIVER_STATUS_INACTIVE;
+            default -> DriverConstants.DRIVER_STATUS_INACTIVE;
         };
     }
 
@@ -139,10 +279,10 @@ public class DriverImportNormalizer {
             return null;
         }
         return switch (canonicalize(value)) {
-            case "dat" -> 1;
-            case "chua_dat" -> 0;
-            case "cho_duyet" -> 3;
-            default -> 2;
+            case "dat" -> DriverConstants.DOCUMENT_STATUS_APPROVED;
+            case "cho_duyet" -> DriverConstants.DOCUMENT_STATUS_PENDING;
+            case "chua_dat" -> DriverConstants.DOCUMENT_STATUS_REJECTED;
+            default -> DriverConstants.DOCUMENT_STATUS_REJECTED;
         };
     }
 

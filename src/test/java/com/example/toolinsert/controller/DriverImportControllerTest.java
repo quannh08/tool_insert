@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.nio.charset.StandardCharsets;
+import com.example.toolinsert.constant.DriverConstants;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -120,6 +121,48 @@ class DriverImportControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalRows").value(1))
                 .andExpect(jsonPath("$.failedRows").value(0));
+    }
+
+    @Test
+    void mapsPropertyAndDocumentHeadersToDriverConstantsCodes() throws Exception {
+        String payload = String.join("\n",
+                "id,ten,sdt,gioi_tinh,trang_thai_tai_xe,khu_vuc_hoat_dong,loai_xe_dang_ky,hang_tai_xe,ngay_cap_cccd,noi_cap_cccd,cccd_mat_truoc,giay_xet_nghiem_ma_tuy,trang_thai_cccd_mat_truoc,trang_thai_giay_xet_nghiem_ma_tuy",
+                "1,Driver One,0972326031,Nam,Active,Ha Noi,Manual,Hang 1,2024-01-01,Cuc Canh Sat,/files/cccd-front.jpg,/files/drug-test.pdf,Dat,Cho duyet"
+        );
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "drivers.csv",
+                MediaType.TEXT_PLAIN_VALUE,
+                payload.getBytes(StandardCharsets.UTF_8)
+        );
+
+        mockMvc.perform(multipart("/api/drivers/import").file(file))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalRows").value(1))
+                .andExpect(jsonPath("$.successRows").value(1))
+                .andExpect(jsonPath("$.failedRows").value(0));
+
+        assertThat(jdbcTemplate.queryForList("select CODE from D_PROPERTY", String.class))
+                .contains(
+                        DriverConstants.PROPERTY_CCCD_ISSUE_DATE,
+                        DriverConstants.PROPERTY_CCCD_ISSUE_PLACE,
+                        DriverConstants.PROPERTY_CCCD_FRONT_IMAGE,
+                        DriverConstants.PROPERTY_DRUG_TEST_CERTIFICATE
+                )
+                .doesNotContain("ngay_cap_cccd", "noi_cap_cccd", "cccd_mat_truoc", "giay_xet_nghiem_ma_tuy");
+
+        assertThat(jdbcTemplate.queryForList("select DOCUMENT_TYPE from D_DRIVER_DOCUMENT_APPROVAL", String.class))
+                .containsExactlyInAnyOrder(
+                        DriverConstants.PROPERTY_CCCD_FRONT_IMAGE,
+                        DriverConstants.PROPERTY_DRUG_TEST_CERTIFICATE
+                );
+
+        assertThat(jdbcTemplate.queryForList("select STATUS from D_DRIVER_DOCUMENT_APPROVAL", Integer.class))
+                .containsExactlyInAnyOrder(
+                        DriverConstants.DOCUMENT_STATUS_APPROVED,
+                        DriverConstants.DOCUMENT_STATUS_PENDING
+                );
     }
 
     @Test

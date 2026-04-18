@@ -3,7 +3,7 @@ package com.example.toolinsert.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.cmsdriversservice.entity.id.DDriverBankAccId;
+import com.example.toolinsert.entity.id.DDriverBankAccId;
 
 import java.io.Serializable;
 

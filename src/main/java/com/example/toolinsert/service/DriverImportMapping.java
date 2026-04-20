@@ -8,6 +8,16 @@ import com.example.toolinsert.constant.DriverConstants;
 
 public final class DriverImportMapping {
 
+    public static final String SERVICE_CODE_CAR = "CAR";
+    public static final String SERVICE_CODE_MOTOBIKE = "MOTOBIKE";
+    public static final String SERVICE_CODE_OTODITINH = "OTODITINH";
+    public static final String SERVICE_CODE_PHANKHOILON = "PHANKHOILON";
+
+    public static final String SERVICE_NAME_CAR = "Ô tô";
+    public static final String SERVICE_NAME_MOTOBIKE = "Xe máy thường";
+    public static final String SERVICE_NAME_OTODITINH = "Ô tô đi tỉnh";
+    public static final String SERVICE_NAME_PHANKHOILON = "Xe máy phân khối lớn";
+
     public static final String HEADER_SOURCE_ID = "id";
     public static final String HEADER_FULL_NAME = "ten";
     public static final String HEADER_DOB = "ngay_sinh";
@@ -87,6 +97,28 @@ public final class DriverImportMapping {
         return PROPERTY_CODES_BY_HEADER.getOrDefault(header, header);
     }
 
+    public static String normalizeServiceCode(String rawValue) {
+        String token = canonicalize(rawValue);
+        return switch (token) {
+            case "car", "manual", "automatic", "oto", "o_to", "xe_oto", "xe_o_to" -> SERVICE_CODE_CAR;
+            case "motobike", "motorbike", "motorcycle", "bike", "xe_may", "xe_may_thuong" -> SERVICE_CODE_MOTOBIKE;
+            case "otoditinh", "oto_di_tinh", "o_to_di_tinh", "xe_oto_di_tinh", "xe_o_to_di_tinh" -> SERVICE_CODE_OTODITINH;
+            case "phankhoilon", "phan_khoi_lon", "xe_may_phan_khoi_lon", "phan_khoi_lon_pkl", "pkl" -> SERVICE_CODE_PHANKHOILON;
+            default -> rawValue == null ? null : rawValue.trim();
+        };
+    }
+
+    public static String serviceDisplayName(String serviceCode) {
+        String normalizedCode = canonicalize(serviceCode);
+        return switch (normalizedCode) {
+            case "car" -> SERVICE_NAME_CAR;
+            case "motobike" -> SERVICE_NAME_MOTOBIKE;
+            case "otoditinh" -> SERVICE_NAME_OTODITINH;
+            case "phankhoilon" -> SERVICE_NAME_PHANKHOILON;
+            default -> serviceCode;
+        };
+    }
+
     public static String licensePropertyCode(String header, String rawServiceCodes) {
         boolean useMotorcycleCode = useMotorcycleLicenseCode(rawServiceCodes);
         return switch (header) {
@@ -141,7 +173,11 @@ public final class DriverImportMapping {
         return token.equals("motorcycle")
                 || token.equals("motobike")
                 || token.equals("bike")
-                || token.equals("xe_may");
+                || token.equals("xe_may")
+                || token.equals("phankhoilon")
+                || token.equals("phan_khoi_lon")
+                || token.equals("xe_may_phan_khoi_lon")
+                || token.equals("pkl");
     }
 
     private static boolean isCarToken(String token) {
@@ -149,7 +185,12 @@ public final class DriverImportMapping {
                 || token.equals("manual")
                 || token.equals("automatic")
                 || token.equals("oto")
-                || token.equals("o_to");
+                || token.equals("o_to")
+                || token.equals("otoditinh")
+                || token.equals("oto_di_tinh")
+                || token.equals("o_to_di_tinh")
+                || token.equals("xe_oto_di_tinh")
+                || token.equals("xe_o_to_di_tinh");
     }
 
     private static String canonicalize(String value) {

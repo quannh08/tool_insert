@@ -33,17 +33,17 @@ import java.io.Serializable;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DDriverBankAccEntity implements Serializable {
     @Id
-    @Column(name = "DRIVER_ID")
+    @Column(name = "DRIVER_ID", nullable = false)
     Long driverId;
 
     @Id
-    @Column(name = "BANK_ACC_ID")
+    @Column(name = "BANK_ACC_ID", nullable = false)
     Long bankAccId;
 
     /**
      * Status: 0-Default, 1-Non-default, 2-Inactive
      * Chỉ một tài khoản có thể là mặc định (status = 0) cho mỗi tài xế
      */
-    @Column(name = "STATUS")
+    @Column(name = "STATUS", nullable = false)
     Integer status;
 }

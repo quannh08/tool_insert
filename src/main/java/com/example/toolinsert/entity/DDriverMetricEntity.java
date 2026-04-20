@@ -1,58 +1,56 @@
 package com.example.toolinsert.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-/**
- * Entity đại diện cho bảng D_DRIVER_METRIC
- *
- * Mô tả: Bảng lưu trữ các chỉ số/metrics của tài xế
- *
- * Ý nghĩa: Bảng này quản lý các chỉ số đánh giá hiệu suất và chất lượng dịch vụ của tài xế như số chuyến đã hoàn
- * thành, tỷ lệ đánh giá tốt, số km đã đi, số giờ làm việc, v.v. Các chỉ số này được sử dụng để đánh giá tài xế, phân
- * loại tài xế vào các lớp khác nhau (VIP, thường), tính toán thưởng và đưa ra quyết định quản lý. Mỗi chỉ số được định
- * nghĩa trong bảng D_CRITERIA và có giá trị cùng đơn vị tính.
- */
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @Builder
-@Table(name = "D_DRIVER_METRIC")
+@Table(
+        name = "D_DRIVER_METRIC",
+        uniqueConstraints = @UniqueConstraint(
+                name = "UK_D_DRIVER_METRIC",
+                columnNames = {"DRIVER_ID", "CRITERIA_ID", "SERVICE_ID"}
+        )
+)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DDriverMetricEntity implements Serializable {
-    @Id
+    @jakarta.persistence.Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "d_driver_metric_seq")
     @SequenceGenerator(name = "d_driver_metric_seq", sequenceName = "SEQ_D_DRIVER_METRIC", allocationSize = 1)
     @Column(name = "DRIVER_METRIC_ID")
     Long driverMetricId;
 
-    /**
-     * ID tài xế
-     */
-    @Column(name = "DRIVER_ID")
+    @Column(name = "DRIVER_ID", nullable = false)
     Long driverId;
 
-    /**
-     * ID tiêu chí
-     */
-    @Column(name = "CRITERIA_ID")
+    @Column(name = "CRITERIA_ID", nullable = false)
     Integer criteriaId;
 
-    /**
-     * Giá trị chỉ số
-     */
-    @Column(name = "VALUE")
+    @Column(name = "SERVICE_ID")
+    Integer serviceId;
+
+    @Column(name = "VALUE", nullable = false)
     BigDecimal value;
 
-    /**
-     * Đơn vị tính
-     */
-    @Column(name = "UNIT")
+    @Column(name = "UNIT", nullable = false)
     String unit;
 }

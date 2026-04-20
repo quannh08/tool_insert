@@ -6,7 +6,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class ImportProperties {
 
     private boolean skipBlankRows = true;
-    private int previewRows = 5;
     private int maxRows = 10_000;
     private int batchSize = 200;
 
@@ -16,14 +15,6 @@ public class ImportProperties {
 
     public void setSkipBlankRows(boolean skipBlankRows) {
         this.skipBlankRows = skipBlankRows;
-    }
-
-    public int getPreviewRows() {
-        return previewRows;
-    }
-
-    public void setPreviewRows(int previewRows) {
-        this.previewRows = previewRows;
     }
 
     public int getMaxRows() {

@@ -340,6 +340,7 @@ public class DriverImportNormalizer {
         }
         return List.of(value.split(",")).stream()
                 .map(String::trim)
+                .map(DriverImportMapping::normalizeServiceCode)
                 .filter(token -> !token.isBlank())
                 .toList();
     }

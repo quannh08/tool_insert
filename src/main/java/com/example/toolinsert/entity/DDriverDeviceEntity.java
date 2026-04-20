@@ -39,18 +39,18 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DDriverDeviceEntity implements Serializable {
     @Id
-    @Column(name = "DRIVER_ID")
+    @Column(name = "DRIVER_ID", nullable = false)
     Long driverId;
 
     @Id
-    @Column(name = "DEVICE_ID")
+    @Column(name = "DEVICE_ID", nullable = false)
     Long deviceId;
 
     /**
      * Thời gian tạo
      */
     @CreationTimestamp
-    @Column(name = "CREATED")
+    @Column(name = "CREATED", nullable = false)
     LocalDateTime created;
 
     /**

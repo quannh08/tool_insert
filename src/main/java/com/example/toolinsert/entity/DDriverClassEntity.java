@@ -39,34 +39,34 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DDriverClassEntity implements Serializable {
     @Id
-    @Column(name = "DRIVER_ID")
+    @Column(name = "DRIVER_ID", nullable = false)
     Long driverId;
 
     @Id
-    @Column(name = "CLASS_ID")
+    @Column(name = "CLASS_ID", nullable = false)
     Integer classId;
 
     @Id
-    @Column(name = "SERVICE_ID")
+    @Column(name = "SERVICE_ID", nullable = false)
     Integer serviceId;
 
     /**
      * Tỷ lệ thưởng
      */
-    @Column(name = "BONUS_RATE")
+    @Column(name = "BONUS_RATE", nullable = false)
     BigDecimal bonusRate;
 
     /**
      * Status: 1-Active, 0-Inactive
      */
-    @Column(name = "STATUS")
+    @Column(name = "STATUS", nullable = false)
     Integer status;
 
     /**
      * Thời gian tạo
      */
     @CreationTimestamp
-    @Column(name = "CREATED")
+    @Column(name = "CREATED", nullable = false)
     LocalDateTime created;
 
     /**
@@ -79,7 +79,7 @@ public class DDriverClassEntity implements Serializable {
     /**
      * Người tạo
      */
-    @Column(name = "CREATOR")
+    @Column(name = "CREATOR", nullable = false)
     String creator;
 
     /**

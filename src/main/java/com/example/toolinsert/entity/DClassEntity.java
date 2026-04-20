@@ -44,32 +44,32 @@ public class DClassEntity implements Serializable {
     /**
      * Mã lớp
      */
-    @Column(name = "CODE")
+    @Column(name = "CODE", nullable = false)
     String code;
 
     /**
      * Tên lớp
      */
-    @Column(name = "NAME")
+    @Column(name = "NAME", nullable = false)
     String name;
 
     /**
      * Tỷ lệ thưởng
      */
-    @Column(name = "BONUS_RATE")
+    @Column(name = "BONUS_RATE", nullable = false)
     BigDecimal bonusRate;
 
     /**
      * Status: 1-Active, 0-Inactive
      */
-    @Column(name = "STATUS")
+    @Column(name = "STATUS", nullable = false)
     Integer status;
 
     /**
      * Thời gian tạo
      */
     @CreationTimestamp
-    @Column(name = "CREATED")
+    @Column(name = "CREATED", nullable = false)
     LocalDateTime created;
 
     /**
@@ -82,7 +82,7 @@ public class DClassEntity implements Serializable {
     /**
      * Người tạo
      */
-    @Column(name = "CREATOR")
+    @Column(name = "CREATOR", nullable = false)
     String creator;
 
     /**

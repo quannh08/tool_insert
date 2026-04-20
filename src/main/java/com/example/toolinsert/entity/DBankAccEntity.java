@@ -42,13 +42,13 @@ public class DBankAccEntity implements Serializable {
     /**
      * Số tài khoản ngân hàng
      */
-    @Column(name = "ACC_NUMBER")
+    @Column(name = "ACC_NUMBER", nullable = false)
     String accNumber;
 
     /**
      * Tên chủ tài khoản
      */
-    @Column(name = "ACC_NAME")
+    @Column(name = "ACC_NAME", nullable = false)
     String accName;
 
     /**
@@ -60,7 +60,7 @@ public class DBankAccEntity implements Serializable {
     /**
      * Loại tiền tệ (VND, USD, etc.)
      */
-    @Column(name = "CURRENCY")
+    @Column(name = "CURRENCY", nullable = false)
     String currency;
 
     /**
@@ -73,7 +73,7 @@ public class DBankAccEntity implements Serializable {
      * Thời gian tạo
      */
     @CreationTimestamp
-    @Column(name = "CREATED")
+    @Column(name = "CREATED", nullable = false)
     LocalDateTime created;
 
     /**
@@ -86,7 +86,7 @@ public class DBankAccEntity implements Serializable {
     /**
      * Người tạo
      */
-    @Column(name = "CREATOR")
+    @Column(name = "CREATOR", nullable = false)
     String creator;
 
     /**

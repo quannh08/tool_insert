@@ -3,14 +3,14 @@ spring:
     name: tool-insert
 
   datasource:
-    url: jdbc:oracle:thin:@//localhost:1521/XEPDB1
-    username: dbtest
-    password: hoangquan0811
+    url: jdbc:oracle:thin:@103.21.149.190:1521:orcl
+    username: ${DB_USERNAME:TAIXE247_TMP}
+    password: ${DB_PASSWORD_DEV:TaiXe247123202511}
     driver-class-name: oracle.jdbc.OracleDriver
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     open-in-view: false
 
   servlet:
@@ -27,6 +27,5 @@ server:
 app:
   import:
     skip-blank-rows: true
-    preview-rows: 5
     max-rows: 10000
     batch-size: 200

@@ -61,13 +61,13 @@ public class DPropertyEntity implements Serializable {
     /**
      * Mã thuộc tính
      */
-    @Column(name = "CODE")
+    @Column(name = "CODE", nullable = false)
     String code;
 
     /**
      * Tên thuộc tính
      */
-    @Column(name = "NAME")
+    @Column(name = "NAME", nullable = false)
     String name;
 
     /**
@@ -122,7 +122,7 @@ public class DPropertyEntity implements Serializable {
     /**
      * Thứ tự sắp xếp
      */
-    @Column(name = "ORD")
+    @Column(name = "ORD", nullable = false)
     Integer ord;
 
     /**
@@ -135,7 +135,7 @@ public class DPropertyEntity implements Serializable {
      * Thời gian tạo
      */
     @CreationTimestamp
-    @Column(name = "CREATED")
+    @Column(name = "CREATED", nullable = false)
     LocalDateTime created;
 
     /**
@@ -148,7 +148,7 @@ public class DPropertyEntity implements Serializable {
     /**
      * Người tạo
      */
-    @Column(name = "CREATOR")
+    @Column(name = "CREATOR", nullable = false)
     String creator;
 
     /**

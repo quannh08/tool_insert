@@ -37,20 +37,20 @@ public class DPartyEntity implements Serializable {
     /**
      * Số điện thoại
      */
-    @Column(name = "PHONE")
+    @Column(name = "PHONE", nullable = false)
     String phone;
 
     /**
      * Status: 1-Active, 0-Inactive
      */
-    @Column(name = "STATUS")
+    @Column(name = "STATUS", nullable = false)
     Integer status;
 
     /**
      * Thời gian tạo
      */
     @CreationTimestamp
-    @Column(name = "CREATED")
+    @Column(name = "CREATED", nullable = false)
     LocalDateTime created;
 
     /**
@@ -63,7 +63,7 @@ public class DPartyEntity implements Serializable {
     /**
      * Người tạo
      */
-    @Column(name = "CREATOR")
+    @Column(name = "CREATOR", nullable = false)
     String creator;
 
     /**

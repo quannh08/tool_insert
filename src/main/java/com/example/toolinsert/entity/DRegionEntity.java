@@ -49,19 +49,19 @@ public class DRegionEntity implements Serializable {
     /**
      * Loại khu vực (Province, District, Ward, etc.)
      */
-    @Column(name = "TYPE")
+    @Column(name = "TYPE", nullable = false)
     String type;
 
     /**
      * Mã khu vực
      */
-    @Column(name = "CODE")
+    @Column(name = "CODE", nullable = false)
     String code;
 
     /**
      * Tên khu vực
      */
-    @Column(name = "NAME")
+    @Column(name = "NAME", nullable = false)
     String name;
 
     /**
@@ -85,7 +85,7 @@ public class DRegionEntity implements Serializable {
     /**
      * Thứ tự sắp xếp
      */
-    @Column(name = "ORD")
+    @Column(name = "ORD", nullable = false)
     Integer ord;
 
     /**
@@ -98,7 +98,7 @@ public class DRegionEntity implements Serializable {
      * Thời gian tạo
      */
     @CreationTimestamp
-    @Column(name = "CREATED")
+    @Column(name = "CREATED", nullable = false)
     LocalDateTime created;
 
     /**
@@ -111,7 +111,7 @@ public class DRegionEntity implements Serializable {
     /**
      * Người tạo
      */
-    @Column(name = "CREATOR")
+    @Column(name = "CREATOR", nullable = false)
     String creator;
 
     /**

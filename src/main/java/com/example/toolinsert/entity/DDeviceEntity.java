@@ -37,19 +37,19 @@ public class DDeviceEntity implements Serializable {
     /**
      * Mã định danh thiết bị (Device Identifier)
      */
-    @Column(name = "DEVICE_ID")
+    @Column(name = "DEVICE_ID", nullable = false)
     String deviceId;
 
     /**
      * Token thiết bị (push notification token)
      */
-    @Column(name = "DEVICE_TOKEN")
+    @Column(name = "DEVICE_TOKEN", nullable = false)
     String deviceToken;
 
     /**
      * Loại hệ điều hành (iOS, Android, etc.)
      */
-    @Column(name = "OS_TYPE")
+    @Column(name = "OS_TYPE", nullable = false)
     String osType;
 
     /**
@@ -86,7 +86,7 @@ public class DDeviceEntity implements Serializable {
      * Thời gian tạo
      */
     @CreationTimestamp
-    @Column(name = "CREATED")
+    @Column(name = "CREATED", nullable = false)
     LocalDateTime created;
 
     /**

@@ -36,19 +36,19 @@ import java.io.Serializable;
 public class DDriverPartyEntity implements Serializable {
 
     @Id
-    @Column(name = "DRIVER_ID")
+    @Column(name = "DRIVER_ID", nullable = false)
     Long driverId;
 
     /**
      * ID đối tác/người dùng
      */
     @Id
-    @Column(name = "PARTY_ID")
+    @Column(name = "PARTY_ID", nullable = false)
     Long partyId;
 
     /**
      * Status: 1-Active, 0-Inactive
      */
-    @Column(name = "STATUS")
+    @Column(name = "STATUS", nullable = false)
     Integer status;
 }

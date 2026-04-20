@@ -39,14 +39,14 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DDriverPropertyEntity implements Serializable {
     @Id
-    @Column(name = "PROPERTY_ID")
+    @Column(name = "PROPERTY_ID", nullable = false)
     Integer propertyId;
 
     /**
      * ID tài xế
      */
     @Id
-    @Column(name = "DRIVER_ID")
+    @Column(name = "DRIVER_ID", nullable = false)
     Long driverId;
 
     /**
@@ -84,7 +84,7 @@ public class DDriverPropertyEntity implements Serializable {
      * Thời gian tạo
      */
     @CreationTimestamp
-    @Column(name = "CREATED")
+    @Column(name = "CREATED", nullable = false)
     LocalDateTime created;
 
     /**
@@ -97,7 +97,7 @@ public class DDriverPropertyEntity implements Serializable {
     /**
      * Người tạo
      */
-    @Column(name = "CREATOR")
+    @Column(name = "CREATOR", nullable = false)
     String creator;
 
     /**

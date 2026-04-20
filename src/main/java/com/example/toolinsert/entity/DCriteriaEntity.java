@@ -37,26 +37,26 @@ public class DCriteriaEntity implements Serializable {
     /**
      * Mã tiêu chí
      */
-    @Column(name = "CODE")
+    @Column(name = "CODE", nullable = false)
     String code;
 
     /**
      * Tên tiêu chí
      */
-    @Column(name = "NAME")
+    @Column(name = "NAME", nullable = false)
     String name;
 
     /**
      * Status: 1-Active, 0-Inactive
      */
-    @Column(name = "STATUS")
+    @Column(name = "STATUS", nullable = false)
     Integer status;
 
     /**
      * Thời gian tạo
      */
     @CreationTimestamp
-    @Column(name = "CREATED")
+    @Column(name = "CREATED", nullable = false)
     LocalDateTime created;
 
     /**
@@ -69,7 +69,7 @@ public class DCriteriaEntity implements Serializable {
     /**
      * Người tạo
      */
-    @Column(name = "CREATOR")
+    @Column(name = "CREATOR", nullable = false)
     String creator;
 
     /**

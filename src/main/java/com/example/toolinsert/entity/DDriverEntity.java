@@ -62,13 +62,13 @@ public class DDriverEntity implements Serializable {
     /**
      * Số CCCD/CMND của tài xế
      */
-    @Column(name = "IDENTITY_NUMBER")
+    @Column(name = "IDENTITY_NUMBER", nullable = false)
     String identityNumber;
 
     /**
      * Họ và tên đầy đủ của tài xế
      */
-    @Column(name = "FULL_NAME")
+    @Column(name = "FULL_NAME", nullable = false)
     String fullName;
 
     /**
@@ -93,7 +93,7 @@ public class DDriverEntity implements Serializable {
      * Thời gian tạo
      */
     @CreationTimestamp
-    @Column(name = "CREATED")
+    @Column(name = "CREATED", nullable = false)
     LocalDateTime created;
 
     /**

@@ -28,16 +28,16 @@ import java.io.Serializable;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DDriverServiceEntity implements Serializable {
     @Id
-    @Column(name = "DRIVER_ID")
+    @Column(name = "DRIVER_ID", nullable = false)
     Long driverId;
 
     @Id
-    @Column(name = "SERVICE_ID")
+    @Column(name = "SERVICE_ID", nullable = false)
     Integer serviceId;
 
     /**
      * Status: 1-Active, 0-Inactive
      */
-    @Column(name = "STATUS")
+    @Column(name = "STATUS", nullable = false)
     Integer status;
 }
